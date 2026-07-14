@@ -3,16 +3,16 @@
 <Settings>
   <inputparamBox />
   <prefixtextBox />
-  <extensiontextBox>[se6qualityCpu21bigVoice].mp4</extensiontextBox>
-  <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
+  <extensiontextBox />
+  <filterparamBoxV> -vf "shanasubtitle=0,deblock=1"</filterparamBoxV>
   <filterparamBoxA />
-  <encparamBox> -f mp4 -movflags faststart  -timestamp now
- -c:v libx265 -tag:v hvc1 -crf 21.0 -qmin 15 -qmax 35 -preset veryfast -tune:v none
- -c:a libfdk_aac -b:a 256k
- -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
+  <encparamBox> -f mp4 -movflags faststart
+ -c:v libx265 -tag:v hvc1 -preset veryfast -tune:v psnr -qmin 18 -b:v 2000k -maxrate 4600k -bufsize 9200k
+ -c:a copy
+ -sn -timestamp now -shanakeyframe 10 -map_metadata -1 -map_chapters -1</encparamBox>
   <x264optsBox />
   <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,0.5,0,1,10,10,10,1</substyle>
+Style: Default,,22,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,1,1,2,10,10,20,1</substyle>
   <fontnameSE />
   <Logo>
     <logochk>False</logochk>
@@ -30,6 +30,3 @@ Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H0000000
     <logoechk>True</logoechk>
   </Logo>
 </Settings>
-
-
-

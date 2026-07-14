@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--ShanaEncoder-->
+<!--FILTER REFERENCE: Scale to 720p with bicubic, auto-pad, SAR reset. Not a standalone preset.-->
+<!--Inject <filterparamBoxV> into a TransTo720p preset. Combine with an encoding template.-->
+<Settings>
+  <filterparamBoxV> -vf "scale=1280:720:flags=bicubic,shanapad=Auto,setsar=1/1,shanasubtitle=1"</filterparamBoxV>
+  <!--scale_qsv alternative (for QSV hardware pipeline — test first):-->
+  <!--<filterparamBoxV> -vf "scale_qsv=w=1280:h=720,shanasubtitle=1"</filterparamBoxV>-->
+</Settings>

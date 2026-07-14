@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--ShanaEncoder-->
+<!--MASTER TEMPLATE: x265 medium preset, CRF 21. Do not load directly in ShanaEncoder.-->
+<!--Edit here first, then propagate to 0cpuQualityGpt5.3CodexMedium/* via generation script.-->
 <Settings>
  <inputparamBox />
  <prefixtextBox />
- <extensiontextBox>[se6qualityCpuMedium21bigVoice].mp4</extensiontextBox>
+ <extensiontextBox>[se6qualityCpuMedium21].mp4</extensiontextBox>
  <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
  <filterparamBoxA />
  <encparamBox> -f mp4 -movflags faststart -timestamp now
  -c:v libx265 -tag:v hvc1 -crf 21.0 -qmin 17 -qmax 36 -preset medium -tune:v none
- -c:a libfdk_aac -b:a 256k
+ -c:a libfdk_aac -b:a 192k
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
  <x264optsBox />
  <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
@@ -30,10 +32,3 @@ Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H0000000
  <logoechk>True</logoechk>
  </Logo>
 </Settings>
-
-
-
-
-
-
-

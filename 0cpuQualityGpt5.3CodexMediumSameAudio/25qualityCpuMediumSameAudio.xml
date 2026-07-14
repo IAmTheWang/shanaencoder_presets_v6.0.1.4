@@ -1,39 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--ShanaEncoder-->
 <Settings>
- <inputparamBox />
- <prefixtextBox />
- <extensiontextBox>[se6originAudioQualityCpuMedium25].mp4</extensiontextBox>
- <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
- <filterparamBoxA />
- <encparamBox> -f mp4 -movflags faststart -timestamp now
+  <inputparamBox />
+  <prefixtextBox />
+  <extensiontextBox>[se6originAudioQualityCpuMedium25].mp4</extensiontextBox>
+  <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
+  <filterparamBoxA />
+  <encparamBox> -f mp4 -movflags faststart -timestamp now
  -c:v libx265 -tag:v hvc1 -crf 25.0 -qmin 17 -qmax 36 -preset medium -tune:v none
  -c:a copy
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
- <x264optsBox />
- <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+  <x264optsBox />
+  <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,0.5,0,1,10,10,10,1</substyle>
- <fontnameSE />
- <Logo>
- <logochk>False</logochk>
- <logopath />
- <logoalign>7</logoalign>
- <logox>5</logox>
- <logoy>5</logoy>
- <logow>0</logow>
- <logoh>0</logoh>
- <logos>1</logos>
- <logosd>1</logosd>
- <logoe>9</logoe>
- <logoed>1</logoed>
- <logoschk>True</logoschk>
- <logoechk>True</logoechk>
- </Logo>
+  <fontnameSE />
+  <Logo>
+    <logochk>False</logochk>
+    <logopath />
+    <logoalign>7</logoalign>
+    <logox>5</logox>
+    <logoy>5</logoy>
+    <logow>0</logow>
+    <logoh>0</logoh>
+    <logos>1</logos>
+    <logosd>1</logosd>
+    <logoe>9</logoe>
+    <logoed>1</logoed>
+    <logoschk>True</logoschk>
+    <logoechk>True</logoechk>
+  </Logo>
 </Settings>
-
-
-
-
-
-
-

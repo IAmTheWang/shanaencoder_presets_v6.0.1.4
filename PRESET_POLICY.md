@@ -4,6 +4,7 @@
 
 - `2026-04-13`（建立统一策略）
 - `2026-04-19`（新增 场景分支预设与技能化维护说明）
+- `2026-06-28`（新增 CodexFastSameAudio 目录定义；定义 BigVoice 为技术参数 -b:a 256k；新增审计规则）
 
 ## 全局统一策略（适用于全仓 XML）
 
@@ -45,6 +46,15 @@
 - 文件命名：`*Scene_*.xml`（如 `24qualityCpuFastScene_BalancedGuard.xml`）。
 - 记录要求：每个新增场景预设须注明“适用素材、目标分辨率、质量档位、关键滤镜开关”。
 
+### `0cpuQualityGpt5.3CodexFastSameAudio`
+
+- 角色：Fast 优化方案 + 保留原音轨。`0cpuQualityGpt5.3CodexFast` 的音轨直通对应版本。
+- 视频参数：`-preset fast`，与 CodexFast 完全一致。
+- 质量约束：保留 `-qmin 17 -qmax 36`。
+- 音频策略：`-c:a copy`，不重编码音频。
+- 播放兼容：保留 `-tag:v hvc1` + `-movflags faststart`。
+- 适用场景：音轨格式需保留（AC3/DTS/FLAC）且编码速度优先。
+
 ### `0cpuQualitySameAudio`
 
 - 角色：保留原音轨（`-c:a copy`）的优化方案。
@@ -53,6 +63,13 @@
 - 播放兼容：保留 `-tag:v hvc1`（HEVC）。
 - MP4 体验：保留/添加 `-movflags faststart`。
 - 音频策略：不重编码音频，不新增音频放大与 limiter。
+
+## BigVoice 技术定义
+
+- **BigVoice = `-b:a 256k`**（而非标准 192k）。
+- 适用场景：高动态范围音频源（演讲、人声为主的内容），需在保持高音频码率的同时压缩视频。
+- **与 SameAudio 不兼容**：BigVoice 需要重编码音频（`-c:a libfdk_aac -b:a 256k`），因此不存在于任何 SameAudio 文件夹。
+- **审计规则**：`/audit-presets` 会对文件名含 `BigVoice` 但 `<encparamBox>` 中不含 `-b:a 256k` 的文件报 ERROR。
 
 ## 使用建议
 
