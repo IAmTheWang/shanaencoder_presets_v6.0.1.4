@@ -3,11 +3,11 @@
 <Settings>
   <inputparamBox />
   <prefixtextBox />
-  <extensiontextBox>[se6originAudioQualityCpuMedium27].mp4</extensiontextBox>
+  <extensiontextBox>[se6originAudioQualityCpuSlow25].mp4</extensiontextBox>
   <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v libx265 -tag:v hvc1 -crf 27.0 -qmin 17 -qmax 36 -preset medium -tune:v none
+ -c:v libx265 -tag:v hvc1 -crf 25.0 -qmin 17 -qmax 36 -preset slow -tune:v none
  -c:a copy
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
   <x264optsBox />
