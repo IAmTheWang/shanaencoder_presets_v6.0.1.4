@@ -12,6 +12,8 @@ This repository contains XML preset configurations for **ShanaEncoder**, a video
 - **`0cpuQualityGpt5.3CodexFast`** - Fast CPU-based x265 encoding with GPT 5.3 Codex optimization
 - **`0cpuQualityGpt5.3CodexFastScene`** - Scene-focused fast CPU x265 encoding variant
 - **`0cpuQualityGpt5.3CodexMedium`** - Medium quality CPU x265 encoding with GPT 5.3 Codex
+- **`0cpuQualityGpt5.3CodexSlow`** - Slow-preset CPU x265 encoding, true 10-bit (`-pix_fmt yuv420p10le`), no qmin/qmax, no forced keyframe interval
+- **`0cpuQualityGpt5.3CodexSlowSameAudio`** - `CodexSlow` variant with audio stream copy
 - **`1cpuQuality`** - Standard quality CPU-based encoding presets
 - **`1cpuQualityGpt5.3Codex`** - CPU quality presets with GPT 5.3 Codex optimization
 
@@ -71,6 +73,8 @@ Codec / bit depth / quality / preset speed / audio / notes for every preset fold
 | `00_TEMPLATE_MASTER` | (n/a) | — | — | — | — | Golden-master XML templates, NOT loaded directly in ShanaEncoder. Edit these first for global param changes (`-qmax`, `-shanakeyframe`, `shanapad`), then propagate via generation script. Masters: `cpu_fast_crf21.xml` (libx265 fast, CRF21, qmin17/qmax36), `cpu_medium_crf21.xml` (libx265 medium, CRF21, qmin17/qmax36), `nvenc_cq23.xml` (hevc_nvenc hq, CQ23, qmin18/qmax35), `qsv_cq23.xml` (hevc_qsv veryfast, global_quality 23, qmin15/qmax35), `filter_scale720p.xml`/`filter_scale1080p.xml` (scale filters + scale_qsv alt). BigVoice = `-b:a 256k`, derived from base master (no separate master file). |
 | `0cpuQualityGpt5.3CodexMedium` | libx265 | 10-bit | CRF 20.0 | medium | libfdk_aac 192k | faststart |
 | `0cpuQualityGpt5.3CodexMediumSameAudio` | libx265 | 10-bit | CRF 20.0 | medium | copy | faststart |
+| `0cpuQualityGpt5.3CodexSlow` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlow.xml`) | slow | libfdk_aac 192k | faststart; no qmin/qmax (CRF-adaptive); no `-shanakeyframe` (x265 default GOP ≤250 frames + scenecut). See `design_documents/2026-09-20-codexSlow-quality-tuning.md` for tradeoffs (slower encode, coarser PotPlayer seek granularity, no QP ceiling on hard scenes). BigVoice variant = `-b:a 256k`. |
+| `0cpuQualityGpt5.3CodexSlowSameAudio` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlowSameAudio.xml`) | slow | copy | faststart; same tradeoffs as `CodexSlow`. No BigVoice variant here (same incompatibility with `-c:a copy` as other SameAudio folders). |
 | `0cpuQualitySameAudio` | libx265 | 10-bit | CRF 20.0 | fast | copy | faststart |
 | `0压 视频复制流` | copy (video) | — | lossless | — | copy | Container remux only, FLV output |
 | `0压 音频复制流` | copy (audio) | — | lossless | — | copy | Audio-only extraction, M4A output |

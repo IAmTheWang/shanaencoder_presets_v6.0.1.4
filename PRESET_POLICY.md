@@ -5,6 +5,7 @@
 - `2026-04-13`（建立统一策略）
 - `2026-04-19`（新增 场景分支预设与技能化维护说明）
 - `2026-06-28`（新增 CodexFastSameAudio 目录定义；定义 BigVoice 为技术参数 -b:a 256k；新增审计规则）
+- `2026-09-20`（新增 CodexSlow / CodexSlowSameAudio 目录定义：真 10bit、去 qmin/qmax、放开 GOP 限制，详见 `design_documents/2026-09-20-codexSlow-quality-tuning.md`）
 
 ## 全局统一策略（适用于全仓 XML）
 
@@ -54,6 +55,21 @@
 - 音频策略：`-c:a copy`，不重编码音频。
 - 播放兼容：保留 `-tag:v hvc1` + `-movflags faststart`。
 - 适用场景：音轨格式需保留（AC3/DTS/FLAC）且编码速度优先。
+
+### `0cpuQualityGpt5.3CodexSlow`
+
+- 角色：慢速高质量方案（体积/画质优先于速度）。
+- 视频参数：`-preset slow`，真 10bit（`-pix_fmt yuv420p10le`，与 `CodexFast`/`CodexMedium` 不同，这两个仅命名为10bit但未实际写 `pix_fmt`）。
+- 质量约束：不设 `-qmin/-qmax`，完全交给 CRF 自适应；不强制 `-shanakeyframe`，交给 x265 默认 GOP（最大 250 帧）+ 场景切换自动插入关键帧。
+- 代价与权衡：详见 `design_documents/2026-09-20-codexSlow-quality-tuning.md`——编码更慢、拖动进度条查找片段的精细度下降、复杂画面失去 QP 上限保护。
+- 文件命名：原始命名（如 `25qualityCpuSlow.xml`），CRF 数值直接体现在文件名与 `<extensiontextBox>` 后缀中，同一文件夹内各档位独立维护，不互相覆盖。
+
+### `0cpuQualityGpt5.3CodexSlowSameAudio`
+
+- 角色：`CodexSlow` 的音轨直通对应版本。
+- 视频参数：与 `CodexSlow` 完全一致（`-preset slow`、真 10bit、无 qmin/qmax、无强制 keyframe）。
+- 音频策略：`-c:a copy`，不重编码音频。
+- 适用场景：音轨格式需保留且愿意接受慢速编码换取体积/画质收益。
 
 ### `0cpuQualitySameAudio`
 
