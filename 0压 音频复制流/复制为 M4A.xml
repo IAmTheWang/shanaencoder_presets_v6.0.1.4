@@ -6,7 +6,7 @@
   <extensiontextBox></extensiontextBox>
   <filterparamBoxV />
   <filterparamBoxA />
-  <encparamBox> -f m4a -c:v none -c:a copy -sn -timestamp now</encparamBox>
+  <encparamBox> -f m4a -movflags faststart -c:v none -c:a copy -sn -timestamp now</encparamBox>
   <x264optsBox />
   <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,,22,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,1,1,2,10,10,20,1</substyle>

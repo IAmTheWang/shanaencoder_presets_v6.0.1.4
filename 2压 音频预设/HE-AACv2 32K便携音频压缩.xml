@@ -6,7 +6,7 @@
   <extensiontextBox />
   <filterparamBoxV />
   <filterparamBoxA> -af "aresample=44100:resampler=soxr"</filterparamBoxA>
-  <encparamBox> -f m4a -timestamp now
+  <encparamBox> -f m4a -movflags faststart -timestamp now
  -c:v none
  -c:a libfdk_aac
  -sn -fdkprofile hev2 -ac 2 -b:a 32k</encparamBox>

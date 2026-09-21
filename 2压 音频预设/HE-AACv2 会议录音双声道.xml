@@ -6,7 +6,7 @@
   <extensiontextBox />
   <filterparamBoxV />
   <filterparamBoxA> -af "dynaudnorm=f=200:g=11:p=0.95:m=10.0:r=0.0:n=1:c=0:b=1:s=0.0"</filterparamBoxA>
-  <encparamBox> -f m4a -c:v none -c:a libfdk_aac -sn -timestamp now -fdkprofile hev2 -b:a 512k -ac 2</encparamBox>
+  <encparamBox> -f m4a -movflags faststart -c:v none -c:a libfdk_aac -sn -timestamp now -fdkprofile hev2 -b:a 512k -ac 2</encparamBox>
   <x264optsBox />
   <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,,22,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,1,1,2,10,10,20,1</substyle>
