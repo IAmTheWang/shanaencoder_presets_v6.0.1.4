@@ -7,6 +7,7 @@
 - `2026-06-28`（新增 CodexFastSameAudio 目录定义；定义 BigVoice 为技术参数 -b:a 256k；新增审计规则）
 - `2026-09-20`（新增 CodexSlow / CodexSlowSameAudio 目录定义：真 10bit、去 qmin/qmax、放开 GOP 限制，详见 `design_documents/2026-09-20-codexSlow-quality-tuning.md`）
 - `2026-09-21`（推广真10bit + `aq-mode=3:aq-strength=0.8` + `qmin 12`/无qmax 统一量化策略到全部 0/1 开头纯英文 CPU 预设文件夹；同时修正本文件此前把 `1cpuQuality` 系列文件夹错误标注为 `0cpuQuality` 前缀的问题）
+- `2026-09-21`（第四轮：把量化策略的目标翻译成 NVENC 自己的参数，推广到 7 个 `hevc_nvenc` 文件夹 + 母版；`2压 H264 8bit NVENC` 排除在外）
 
 ## 全局统一策略（适用于全仓 XML）
 
@@ -30,6 +31,18 @@
 **不受此统一策略约束、各文件夹继续保留自己差异化定位的部分**：`-preset` 速度档位（veryfast/fast/medium/slow）、每个文件的 CRF 数值、音频编码方式（copy/libfdk_aac/BigVoice 256k）、文件命名规则。
 
 依据与决策过程（含 x265 官方文档验证、真实 A/B 体积对比数据）详见 `design_documents/2026-09-20-codexSlow-quality-tuning.md`。
+
+## NVENC 量化策略统一说明（2026-09-21 起）
+
+**适用范围**：`2压 H265 10bit NVENC`、`2压 H265 10bit NVENCfor720pXiaoMiTv`、`nvQuality`、`qualitySameAudio`、`qualitySameAudioTransTo1080p`、`qualityTransTo1080p`、`qualityTransTo720p`，以及 `00_TEMPLATE_MASTER` 的 `nvenc_cq23.xml` 母版。**`2压 H264 8bit NVENC` 不适用**（文件夹明确要求 8bit，H.264 10bit 硬件解码支持差）。
+
+**这不是 CPU 策略的直接照搬**：NVENC 和 libx265 是完全不同的编码器，`-x265-params aq-mode=3:aq-strength=0.8` 这种语法 NVENC 不认。这里是把"真10bit + AQ防色带 + 宽松qmin/无qmax + 不强制keyframe"这个**目标**翻译成 NVENC 自己的参数，具体语法和效果都不同：
+- 真 10bit：`-pix_fmt p010le`（不是 x265 用的 `yuv420p10le`）。**有环境风险**：部分驱动/滤镜链组合下可能报错，需要用户自己实测确认能跑通。
+- AQ：`-spatial-aq 1 -aq-strength 8`（NVIDIA 官方默认强度）。**注意这不是官方认证的防色带方案**——NVENC 没有 x265 `aq-mode 3` 那种"偏向暗部场景"专用模式，只有通用的感知质量优化，效果预期弱于 CPU 那边。
+- `-qmin 12`，不设 `-qmax`——但**只对"标准CQ档位"和"VBR码率模式"文件生效**；固定QP模式（`-qp N`）和无损模式（`-qp 0`）文件不加 qmin/qmax（这两种模式下 qmin/qmax 不生效，加了没有意义）。
+- 不强制 `-shanakeyframe`。
+
+依据、文件类型分类（标准CQ/固定QP/无损/VBR码率）详见 `design_documents/2026-09-20-codexSlow-quality-tuning.md` 第四轮章节。
 
 ## 主要目录的定位与差异
 

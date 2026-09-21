@@ -204,3 +204,46 @@ Gemini 审阅第二轮设计文档通过后，用户要求：把第二轮定下�
 2. `ffprobe` 检查 `pix_fmt=yuv420p10le`、`profile=Main 10`。
 3. 暗部/皮肤渐变画面色带的肉眼对比。
 4. **`1cpuQuality`（veryfast 档位）的预期校正**：veryfast 本身算法较简化，配合 `aq-mode 3` 后暗部色带能明显改善，但整体压缩率天然低于 slow/medium 档位——测试时不要拿它跟 slow 档位的绝对体积做横向比较，只跟它自己"改前的 veryfast 版本"比。
+
+---
+
+## 第四轮调整（2026-09-21）：推广到 NVENC（NVIDIA 显卡）文件夹
+
+### 触发原因
+
+用户要求把前三轮定下的量化策略也用到用 NVIDIA 显卡压制的文件夹。但 NVENC（`hevc_nvenc`/`h264_nvenc`）和 libx265 是完全不同的编码器实现，`-x265-params aq-mode=3:aq-strength=0.8` 这种 libx265 专属语法 NVENC 根本不认，不能照搬——这一轮做的是"把策略的目标翻译成 NVENC 自己的参数"，不是复制语法。
+
+### 技术差异核实
+
+- **10bit**：NVENC 真 10bit 要用 `-pix_fmt p010le`（不是 x265 的 `yuv420p10le`），配合已有的 `-profile:v main10`。查证社区反馈，这个参数在部分驱动/滤镜链组合下可能报错——风险比 libx265 那边高，已告知用户需要自己实测。
+- **AQ/防色带**：NVENC 没有 x265 的"aq-mode 3 暗部防色带"专用模式，只有通用的 `-spatial-aq 1 -aq-strength N`（1~15，默认8）+ `-temporal-aq`，NVIDIA 官方文档只说这是通用感知质量优化（"low complexity flat regions...extra bits are allocated"），不是官方认证的防色带方案。已和用户确认仍然开启，作为最接近的类比方案：`-spatial-aq 1 -aq-strength 8`（用 NVIDIA 官方默认强度）。
+- **`2压 H264 8bit NVENC`**：文件夹名字明确写着"8bit"，且 H.264 的 10bit(High10) 硬件解码支持很差，已和用户确认本轮**排除**，完全不动。
+
+### 范围与文件类型分类
+
+7 个 `hevc_nvenc` 文件夹 + `00_TEMPLATE_MASTER` 的 `nvenc_cq23.xml` 母版，共 74 个文件。其中 `2压 H265 10bit NVENC` / `2压 H265 10bit NVENCfor720pXiaoMiTv` 两个文件夹内部混合了 4 种不同的码率控制模式，不能用同一个正则统一处理，按类型分开：
+
+| 类型 | 文件数 | 特征 | 处理方式 |
+|---|---|---|---|
+| A：标准 CQ 档位 | 68 | `-cq NN -qmin X -qmax Y` | 加 `pix_fmt p010le`；qmin统一收敛为12，去掉qmax；加 `spatial-aq 1 -aq-strength 8` |
+| B：CQP 固定QP | 2 | `-qp 25`，无qmin/qmax | 只加 `pix_fmt p010le` + AQ，不碰qmin/qmax（固定QP下qmin/qmax不生效） |
+| C：无损CQP | 2 | `-qp 0` | 只加 `pix_fmt p010le`，不加AQ/qmin/qmax（无损没有"重新分配码率"的概念） |
+| D：VBR码率模式 | 2 | `-b:v 3800k -shanarcmode variable -qmin 17` | 加 `pix_fmt p010le`；qmin收敛为12；加AQ |
+
+全部类型统一去掉 `-shanakeyframe 10`（类型C本来就没有，不用处理）。
+
+### 执行结果
+
+用分类型的 `sed -E` 正则完成替换，验证：
+- 74/74 文件含 `pix_fmt p010le`。
+- 72/74 文件含 `spatial-aq 1 -aq-strength 8`（正确排除了2个无损CQP文件）。
+- 70/74 文件含 `qmin 12`（68个类型A + 2个类型D，正确排除了2个CQP固定QP文件和2个无损CQP文件）。
+- 全范围无残留 `shanakeyframe`。
+- `2压 H264 8bit NVENC` 确认 0 处改动。
+- 两个"2压"文件夹的全部 8 个文件逐一核对（不是抽样），确认类型分类和改法一一对应正确。
+
+### 待用户验证
+
+1. **`-pix_fmt p010le` 兼容性必须用户自己实测**：在 ShanaEncoder 里实际跑 1~2 个典型文件（含 `2压` 系列的缩放/去隔行滤镜链），确认不报错。如果某个文件夹报错，把该文件夹的 `-pix_fmt p010le` 撤回即可，`spatial-aq`/`qmin`/去keyframe 部分不受影响。
+2. 暗部/皮肤渐变画面的 `spatial-aq` 效果肉眼对比（预期效果弱于 CPU 那边的 `aq-mode 3`，因为 NVENC 没有官方认证的暗部偏置机制）。
+3. `ffprobe` 检查 `pix_fmt=p010le`、`profile=Main 10`。
