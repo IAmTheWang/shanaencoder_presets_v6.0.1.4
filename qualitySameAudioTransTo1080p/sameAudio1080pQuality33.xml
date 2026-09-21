@@ -7,9 +7,9 @@
   <filterparamBoxV> -vf "scale=1920:1080:flags=bicubic,shanapad=Auto,setsar=1/1,shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4  -timestamp now
- -c:v hevc_nvenc -tag:v hvc1 -preset hq -tune:v hq -cq 33 -qmin 18 -qmax 36 -profile:v main10 -level auto
+ -c:v hevc_nvenc -tag:v hvc1 -pix_fmt p010le -preset hq -tune:v hq -cq 33 -qmin 12 -profile:v main10 -level auto -spatial-aq 1 -aq-strength 8
  -c:a copy
- -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
+ -sn -map_metadata -1 -map_chapters -1 -assforcestyle</encparamBox>
   <x264optsBox />
   <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,0.5,0,1,10,10,10,1</substyle>

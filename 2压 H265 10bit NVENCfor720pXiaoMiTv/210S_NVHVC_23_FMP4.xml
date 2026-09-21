@@ -7,9 +7,9 @@
   <filterparamBoxV> -vf "scale=1280:720:flags=bicubic,shanapad=Auto,setsar=1/1,shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart 
- -c:v hevc_nvenc -tag:v hvc1 -preset hq -tune:v hq -cq 23 -qmin 17 -qmax 35 -profile:v main10 -level auto
+ -c:v hevc_nvenc -tag:v hvc1 -pix_fmt p010le -preset hq -tune:v hq -cq 23 -qmin 12 -profile:v main10 -level auto -spatial-aq 1 -aq-strength 8
  -c:a libmp3lame -ac 2 -b:a 128k
- -sn -timestamp now -map_metadata -1 -map_chapters -1 -shanakeyframe 10</encparamBox>
+ -sn -timestamp now -map_metadata -1 -map_chapters -1</encparamBox>
   <x264optsBox />
   <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,,22,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,1,1,2,10,10,20,1</substyle>
