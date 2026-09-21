@@ -9,13 +9,18 @@ This repository contains XML preset configurations for **ShanaEncoder**, a video
 ### Core Preset Categories
 
 #### CPU-based Quality Presets
-- **`0cpuQualityGpt5.3CodexFast`** - Fast CPU-based x265 encoding with GPT 5.3 Codex optimization
-- **`0cpuQualityGpt5.3CodexFastScene`** - Scene-focused fast CPU x265 encoding variant
-- **`0cpuQualityGpt5.3CodexMedium`** - Medium quality CPU x265 encoding with GPT 5.3 Codex
-- **`0cpuQualityGpt5.3CodexSlow`** - Slow-preset CPU x265 encoding, true 10-bit (`-pix_fmt yuv420p10le`), no qmin/qmax, no forced keyframe interval
+- **`0cpuQualityGpt5.3CodexMedium`** - Medium-preset CPU x265 encoding with GPT 5.3 Codex optimization
+- **`0cpuQualityGpt5.3CodexMediumSameAudio`** - `CodexMedium` variant with audio stream copy
+- **`0cpuQualityGpt5.3CodexSlow`** - Slow-preset CPU x265 encoding, true 10-bit (`-pix_fmt yuv420p10le`)
 - **`0cpuQualityGpt5.3CodexSlowSameAudio`** - `CodexSlow` variant with audio stream copy
-- **`1cpuQuality`** - Standard quality CPU-based encoding presets
+- **`0cpuQualitySameAudio`** - Fast-preset CPU x265 encoding with audio stream copy
+- **`1cpuQuality`** - Standard/baseline quality CPU-based encoding presets (`-preset veryfast`)
 - **`1cpuQualityGpt5.3Codex`** - CPU quality presets with GPT 5.3 Codex optimization
+- **`1cpuQualityGpt5.3CodexFast`** - Fast CPU-based x265 encoding with GPT 5.3 Codex optimization
+- **`1cpuQualityGpt5.3CodexFastSameAudio`** - `CodexFast` variant with audio stream copy
+- **`1cpuQualityGpt5.3CodexFastScene`** - Scene-focused fast CPU x265 encoding, hand-tuned A/B variants
+
+As of 2026-09-21, all folders above (libx265 CPU presets) share one unified quantization policy: true 10-bit, `-qmin 12` with no `-qmax`, `aq-mode=3:aq-strength=0.8`, no forced keyframe interval. See the Per-Folder Encoding Parameters table below and `design_documents/2026-09-20-codexSlow-quality-tuning.md` for details.
 
 #### Lossless/Passthrough Presets
 - **`0压 视频复制流`** - Video stream copy (no re-encoding)
@@ -68,21 +73,23 @@ This repository contains XML preset configurations for **ShanaEncoder**, a video
 
 Codec / bit depth / quality / preset speed / audio / notes for every preset folder (merged from former per-folder CLAUDE.md files, now removed to reduce context overhead).
 
+**2026-09-21 update**: all `0`/`1`-prefixed pure-ASCII libx265 CPU folders below (plus `00_TEMPLATE_MASTER`'s two libx265 masters) now share one unified quantization policy: true 10-bit (`-pix_fmt yuv420p10le`), `-qmin 12` with no `-qmax`, `-x265-params aq-mode=3:aq-strength=0.8` (x265's dark-scene banding-prevention AQ mode), and no forced `-shanakeyframe` (x265 default GOP ≤250 frames + scenecut). Full rationale, x265 doc citations, and A/B test data: `design_documents/2026-09-20-codexSlow-quality-tuning.md`. Per-folder rows below only note what's *distinct* to that folder (preset speed, CRF range, audio).
+
 | Folder | Codec | Bit | Quality | Preset | Audio | Notes |
 |---|---|---|---|---|---|---|
-| `00_TEMPLATE_MASTER` | (n/a) | — | — | — | — | Golden-master XML templates, NOT loaded directly in ShanaEncoder. Edit these first for global param changes (`-qmax`, `-shanakeyframe`, `shanapad`), then propagate via generation script. Masters: `cpu_fast_crf21.xml` (libx265 fast, CRF21, qmin17/qmax36), `cpu_medium_crf21.xml` (libx265 medium, CRF21, qmin17/qmax36), `nvenc_cq23.xml` (hevc_nvenc hq, CQ23, qmin18/qmax35), `qsv_cq23.xml` (hevc_qsv veryfast, global_quality 23, qmin15/qmax35), `filter_scale720p.xml`/`filter_scale1080p.xml` (scale filters + scale_qsv alt). BigVoice = `-b:a 256k`, derived from base master (no separate master file). |
-| `0cpuQualityGpt5.3CodexMedium` | libx265 | 10-bit | CRF 20.0 | medium | libfdk_aac 192k | faststart |
-| `0cpuQualityGpt5.3CodexMediumSameAudio` | libx265 | 10-bit | CRF 20.0 | medium | copy | faststart |
-| `0cpuQualityGpt5.3CodexSlow` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlow.xml`) | slow | libfdk_aac 192k | faststart; no qmin/qmax (CRF-adaptive); no `-shanakeyframe` (x265 default GOP ≤250 frames + scenecut). See `design_documents/2026-09-20-codexSlow-quality-tuning.md` for tradeoffs (slower encode, coarser PotPlayer seek granularity, no QP ceiling on hard scenes). BigVoice variant = `-b:a 256k`. |
-| `0cpuQualityGpt5.3CodexSlowSameAudio` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlowSameAudio.xml`) | slow | copy | faststart; same tradeoffs as `CodexSlow`. No BigVoice variant here (same incompatibility with `-c:a copy` as other SameAudio folders). |
-| `0cpuQualitySameAudio` | libx265 | 10-bit | CRF 20.0 | fast | copy | faststart |
+| `00_TEMPLATE_MASTER` | (n/a) | — | — | — | — | Golden-master XML templates, NOT loaded directly in ShanaEncoder. Edit these first for global param changes, then propagate via generation script. Masters: `cpu_fast_crf21.xml` / `cpu_medium_crf21.xml` (libx265 fast/medium, CRF21, follow the unified quantization policy above as of 2026-09-21), `nvenc_cq23.xml` (hevc_nvenc hq, CQ23, qmin18/qmax35 — NVENC, not subject to the x265 AQ policy), `qsv_cq23.xml` (hevc_qsv veryfast, global_quality 23, qmin15/qmax35 — QSV, not subject to the x265 AQ policy), `filter_scale720p.xml`/`filter_scale1080p.xml` (scale filters + scale_qsv alt). BigVoice = `-b:a 256k`, derived from base master (no separate master file). |
+| `0cpuQualityGpt5.3CodexMedium` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file, `NNqualityCpuMedium.xml`) | medium | libfdk_aac 192k | faststart; unified quantization policy (see above). |
+| `0cpuQualityGpt5.3CodexMediumSameAudio` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | medium | copy | faststart; unified quantization policy (see above). |
+| `0cpuQualityGpt5.3CodexSlow` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlow.xml`) | slow | libfdk_aac 192k | faststart; unified quantization policy (see above) — `-qmin 12`, no qmax, `aq-mode=3:aq-strength=0.8` as of 2026-09-21 (round 1 had gone qmin/qmax-free entirely; round 2 added the AQ-based approach after real A/B testing showed the fully-free version cost +17% size). See `design_documents/2026-09-20-codexSlow-quality-tuning.md`. BigVoice variant = `-b:a 256k`. |
+| `0cpuQualityGpt5.3CodexSlowSameAudio` | libx265 | **true 10-bit** (`-pix_fmt yuv420p10le`) | CRF 20.0–32.0 (per-file, `NNqualityCpuSlowSameAudio.xml`) | slow | copy | faststart; same as `CodexSlow`. No BigVoice variant here (same incompatibility with `-c:a copy` as other SameAudio folders). |
+| `0cpuQualitySameAudio` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | fast | copy | faststart; unified quantization policy (see above). |
 | `0压 视频复制流` | copy (video) | — | lossless | — | copy | Container remux only, FLV output |
 | `0压 音频复制流` | copy (audio) | — | lossless | — | copy | Audio-only extraction, M4A output |
-| `1cpuQuality` | libx265 | 10-bit | CRF 20.0 | veryfast | libfdk_aac 192k | faststart |
-| `1cpuQualityGpt5.3Codex` | libx265 | 10-bit | CRF 20.0 | fast | libfdk_aac 192k | faststart |
-| `1cpuQualityGpt5.3CodexFast` | libx265 | 10-bit | CRF 20.0 | fast | libfdk_aac 192k | faststart; subtitle support |
-| `1cpuQualityGpt5.3CodexFastSameAudio` | libx265 | 10-bit | CRF 20–32 (per-file, `NNqualityCpuFastSameAudio.xml`) | fast | copy | faststart. No BigVoice variant here (BigVoice=`-b:a 256k` re-encode is incompatible with `-c:a copy`); use `0cpuQualityGpt5.3CodexFast/21qualityCpuBigVoiceFast.xml` instead. CRF guide: 20-22 near-lossless/archival, 23-25 high quality storage, 26-28 default balance, 29-32 small/low-storage. |
-| `1cpuQualityGpt5.3CodexFastScene` | libx265 | 10-bit | CRF 23.0 | fast | libfdk_aac 192k | faststart; scene-detection/detail-guard params to prevent over-compression in complex scenes |
+| `1cpuQuality` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | veryfast | libfdk_aac 192k | faststart; unified quantization policy (see above). Note: `veryfast` is inherently a simpler/faster algorithm than `medium`/`slow`, so its overall compression ratio stays naturally lower than those tiers even with the same AQ tuning — don't compare its absolute output size against `CodexSlow`, only against its own pre-2026-09-21 output. |
+| `1cpuQualityGpt5.3Codex` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | fast | libfdk_aac 192k | faststart; unified quantization policy (see above). Previously had no qmin/qmax at all; now uses the shared `qmin 12`/no-qmax/aq-mode3 scheme. |
+| `1cpuQualityGpt5.3CodexFast` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | fast | libfdk_aac 192k | faststart; subtitle support; unified quantization policy (see above). |
+| `1cpuQualityGpt5.3CodexFastSameAudio` | libx265 | **true 10-bit** | CRF 20–32 (per-file, `NNqualityCpuFastSameAudio.xml`) | fast | copy | faststart; unified quantization policy (see above). No BigVoice variant here (BigVoice=`-b:a 256k` re-encode is incompatible with `-c:a copy`); use `1cpuQualityGpt5.3CodexFast/21qualityCpuBigVoiceFast.xml` instead. CRF guide: 20-22 near-lossless/archival, 23-25 high quality storage, 26-28 default balance, 29-32 small/low-storage. |
+| `1cpuQualityGpt5.3CodexFastScene` | libx265 | **true 10-bit** | CRF 23.0–26.0 (5 hand-tuned A/B variants) | fast | libfdk_aac 192k (one variant uses copy) | faststart; scene-detection/detail-guard filenames kept, but as of 2026-09-21 all 5 variants' qmin/qmax were converged onto the unified quantization policy above (previously each variant intentionally used a different qmin/qmax spread — that differentiation was dropped in favor of repo-wide consistency; CRF and filenames still differ per variant). |
 | `2压 H264 8bit NVENC` | h264_nvenc | 8-bit | CQ 23 | hq | copy | faststart; unsharp+deblock filters; requires NVENC GPU (GTX 950+/RTX) |
 | `2压 H264 8bit x264` | libx264 | 8-bit | CRF 19.0 | veryfast | copy | faststart; SSIM-tuned; unsharp+deblock filters |
 | `2压 H265 10bit NVENC` | hevc_nvenc | 10-bit | CQ 23 | hq | copy | faststart; profile main10; requires HEVC NVENC GPU (GTX 950+/RTX) |

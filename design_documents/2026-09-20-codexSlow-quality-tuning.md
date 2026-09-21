@@ -69,6 +69,26 @@
 
 （`XX.0` = 每个文件各自原有的 CRF 值，不改动）
 
+### `yuv420p10le` 参数拆解（容易误解的点，需要说明）
+
+`-pix_fmt yuv420p10le` 这个值本身由 4 部分拼成：
+
+| 片段 | 含义 |
+|---|---|
+| `yuv420` | 色度采样比例（YUV 4:2:0）——亮度(Y)每像素都精细记录，色度(UV)每 2×2 像素共用一组数据，是视频行业的通用默认标准 |
+| `p` | planar，Y/U/V 三个分量分开存储 |
+| `10` | **位深**，每个分量 1024 级精度（8bit 只有 256 级），是这次改动唯一实质变化的部分 |
+| `le` | little-endian，多字节数据的存储字节序，纯技术实现细节，不影响画质 |
+
+**关键澄清：这次改动"新增了 `-pix_fmt yuv420p10le` 这一串参数"，但并不等于"新增了 YUV420 这个色度采样方案"。**
+
+ffmpeg 在没有显式指定 `-pix_fmt` 时，libx265 的默认值本身就是 `yuv420p`（8bit 版本的 YUV420）。也就是说：
+
+- **改动前**：色度采样已经是 4:2:0（隐式默认，8bit）——这 28 个文件此前完全没写 `-pix_fmt`，一直是靠 ffmpeg 的隐式默认在跑。
+- **改动后**：色度采样仍然是 4:2:0（这次显式写出来了，10bit）。
+
+这次改动唯一真正生效的部分是**位深从隐式 8bit 变成显式 10bit**；`420` 这个色度采样比例从头到尾没有变化，只是这次跟着 `10` 一起被显式写进了配置文件。之所以在这里特别写明，是因为字符串里同时出现 `yuv420` 和 `10`，很容易被误读成"这次同时新增了 YUV420 和 10bit 两件事"，实际只新增了后者。
+
 ## 验证方法
 
 1. 挑 2~3 个不同 CRF 档位的文件（如 20、25、32）在 ShanaEncoder 里实际压制一次，用以下命令确认真 10bit 生效：
@@ -84,3 +104,103 @@
 ## 遗留问题 / 后续
 
 是否要把同样的策略（真 10bit、去 qmin/qmax、放开 GOP）推广到仓库里其他标"10bit"的 CPU 预设文件夹（如 `0cpuQualityGpt5.3CodexMedium`、`1cpuQuality` 等），本次不做，留待这批 CodexSlow 文件在实际使用中验证效果后再决定。
+
+---
+
+## 第二轮调整（2026-09-21）：用 AQ 模式调优替代粗暴去 qmin
+
+### 触发原因：真实 A/B 测试结果
+
+用户用同一份素材（NEO-781...）分别跑了旧 Medium 预设和第一轮改完的 Slow 预设，CRF 都是 25：
+
+| 预设 | 参数 | 体积 |
+|---|---|---|
+| `0cpuQualityGpt5.3CodexMedium` (25) | preset medium、8bit（隐式）、qmin17/qmax36、keyframe10 | 1.79GB |
+| `0cpuQualityGpt5.3CodexSlow` (25，第一轮改后) | preset slow、真10bit、无qmin/qmax、无强制keyframe | 2.1GB（+17%） |
+
+注意这不是单变量对比，preset 本身也不同（medium vs slow），但排查后判断：体积上涨主要来自"真10bit"+"去掉 qmin17"两项**同方向叠加**——都会让编码器在这批素材典型的暗部/皮肤渐变画面上多花精度防色带，抵消了"去 shanakeyframe"和"preset slow"本该省下的体积。
+
+### Gemini 第二轮建议
+
+不用 `qmin` 硬阈值控制体积，改用 x265 的自适应量化机制本身：`--aq-mode 3`（暗部防色带专用模式）+ `--aq-strength 0.8`（降低 AQ 强度，避免把 H.264 源文件的压缩瑕疵当作"高价值细节"过度花码率）+ 保留 `qmin 10~12` 作为极少数极端画面的兜底，而非主力调节手段。预期能把 17% 的涨幅压到 3%~6%。
+
+### 技术验证（x265 官方文档）
+
+查证 <https://x265.readthedocs.io/en/master/cli.html>：
+
+- `--aq-mode 3` 官方原文：*"AQ enabled with auto-variance and bias to dark scenes. This is recommended for 8-bit encodes or low-bitrate 10-bit encodes, to prevent color banding/blocking."* —— 确认这个模式就是官方设计来解决色带问题的，跟 Gemini 的说法一致。（x265 默认是 `aq-mode 2`，不是 1；Gemini 原话"默认1或2"不够精确，但不影响结论。）
+- `--aq-strength` 默认 1.0，范围 0~3，官方注明在 aq-mode 2/3 下该值越高、QP 偏移和码率差异越大——确认调低到 0.8 确实能减少 AQ 在暗部区域多花的码率。
+
+结论：这条建议比第一轮"完全去掉 qmin"更精准——用内容感知的机制解决问题，而不是全局硬阈值。
+
+### 最终决策
+
+采用 `aq-mode=3`、`aq-strength=0.8`、`qmin=12`。`qmax`（原36）继续保持完全去掉，不重新加回——`qmax` 解决的是复杂/高动态画面的画质下限保护，跟 `aq-mode 3` 针对的暗部防色带是两个不同问题，这轮 Gemini 建议也没提议改动 `qmax`。
+
+### 计划中的 XML 改动（尚未执行，待本设计文档经 Gemini 审阅后再落地）
+
+范围与第一轮相同：`0cpuQualityGpt5.3CodexSlow` + `0cpuQualityGpt5.3CodexSlowSameAudio` 共 28 个文件，各自 CRF 数值不变。
+
+```diff
+- -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -crf XX.0 -preset slow -tune:v none
++ -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -crf XX.0 -qmin 12 -preset slow -tune:v none -x265-params aq-mode=3:aq-strength=0.8
+```
+
+注意：`aq-mode`/`aq-strength` 不是 ffmpeg 通用参数，必须通过 `-x265-params aq-mode=3:aq-strength=0.8` 传给 x265，不能写成独立的 `-aq-mode`/`-aq-strength` 标志；`qmin` 仍用 ffmpeg 原生 `-qmin` 写法，两种语法不要混用。
+
+### 后续步骤（第二轮设计时的计划，已在第三轮中执行完毕，见下）
+
+1. ~~把这份设计文档拿给 Gemini 审阅。~~ 已完成，Gemini 审阅通过。
+2. ~~审阅通过后：同步更新 `PRESET_POLICY.md` 和 `CLAUDE.md`~~ 已在第三轮一并完成（见下）。
+3. ~~批量修改 28 个 XML 文件~~ 已在第三轮的批量修改中一并完成。
+4. 用同一份素材重新压制 CRF25，对比体积是否回落到预期的 +3%~+6% 区间，并检查暗部/皮肤渐变画面的色带情况——**待用户实测**。
+5. Git 提交粒度改为按文件夹拆分，详见第三轮章节。
+
+---
+
+## 第三轮调整（2026-09-21）：推广到全部 0/1 开头纯英文 CPU 预设文件夹
+
+### 触发原因
+
+Gemini 审阅第二轮设计文档通过后，用户要求：把第二轮定下的最终方案（真10bit + `qmin12` + 无`qmax` + `aq-mode=3:aq-strength=0.8` + 无强制 `shanakeyframe`）推广到仓库里**所有文件夹名以 0 或 1 开头、且不含中文字符**的 libx265 CPU 预设文件夹，而不只是 `CodexSlow` 这两个文件夹。这也正好回答了第一轮文档"遗留问题"里挂起的那个问题。
+
+### 范围盘点
+
+实际用 Bash/Grep 核对目录（不依赖 `CLAUDE.md` 的旧描述——过去出现过文档和实际目录不一致的情况），确认满足条件的文件夹及其当时的 `<encparamBox>` 状态：
+
+| 文件夹 | 文件数 | preset | 改动前 qmin/qmax | 音频 |
+|---|---|---|---|---|
+| `0cpuQualityGpt5.3CodexMedium` | 14 | medium | 17/36 | libfdk_aac 192k（含BigVoice 256k） |
+| `0cpuQualityGpt5.3CodexMediumSameAudio` | 14 | medium | 17/36 | copy |
+| `0cpuQualityGpt5.3CodexSlow` | 14 | slow | 第一轮已去掉，本轮补 aq-mode | libfdk_aac 192k（含BigVoice） |
+| `0cpuQualityGpt5.3CodexSlowSameAudio` | 14 | slow | 第一轮已去掉，本轮补 aq-mode | copy |
+| `0cpuQualitySameAudio` | 13 | fast | 17/36 | copy |
+| `1cpuQuality` | 14 | veryfast | 15/35（跟其他文件夹不同） | libfdk_aac 192k（含BigVoice） |
+| `1cpuQualityGpt5.3Codex` | 14 | fast | 本来就没设 qmin/qmax | libfdk_aac 192k（含BigVoice） |
+| `1cpuQualityGpt5.3CodexFast` | 14 | fast | 17/36 | libfdk_aac 192k（含BigVoice） |
+| `1cpuQualityGpt5.3CodexFastSameAudio` | 13 | fast | 17/36 | copy |
+| `1cpuQualityGpt5.3CodexFastScene` | 5 | fast | 每个文件不同（16/34、17/36×2、18/40，刻意做A/B差异化） | 混合 |
+| `00_TEMPLATE_MASTER`（仅 `cpu_fast_crf21.xml`/`cpu_medium_crf21.xml`，libx265 母版） | 2 | fast/medium | 17/36 | libfdk_aac 192k |
+
+共 **131 个文件**。`00_TEMPLATE_MASTER` 里另外 4 个模板（`nvenc_cq23.xml`/`qsv_cq23.xml`/两个 filter 模板）是 NVENC/QSV/纯滤镜，不是 x265，本次 x265 专属的 aq-mode/pix_fmt 方案不适用，未改动。
+
+**关键决策（已和用户确认）：**
+- `1cpuQualityGpt5.3CodexFastScene` 虽然是刻意做差异化 A/B 测试用的文件夹（各文件 qmin/qmax 本来不同），仍然统一改成新方案，不保留原有的 qmin/qmax 差异——保持全仓库底层量化策略口径一致优先于保留这个文件夹内部的差异化实验。
+- `00_TEMPLATE_MASTER` 的 2 个 libx265 母版一并更新，保持"母版是生成其他预设的源头"这个设计不失效。
+- 每个文件夹的 `-preset` 速度档位（medium/fast/veryfast/slow）、每个文件的 CRF 数值、音频编码方式（copy/libfdk_aac/BigVoice 256k）、文件名，全部保持不变——这次只统一底层量化/防色带策略，不动"这个文件夹是什么定位"的核心身份。
+
+### 执行结果
+
+用一条 `sed -E` 正则（能同时处理"原来有 qmin/qmax"和"原来没有 qmin/qmax"两种情况）对 129 个"全新应用"文件 + `00_TEMPLATE_MASTER` 的 2 个母版做了替换，另用单独一条正则对已经完成第一轮的 `CodexSlow`/`SlowSameAudio` 28 个文件补上第二轮的 aq-mode 增量。执行后验证：
+- 全范围 131 个文件确认都含 `pix_fmt yuv420p10le`、`qmin 12`、`aq-mode=3:aq-strength=0.8`。
+- 反向扫描确认没有任何残留的非 12 qmin 数值、没有任何残留的 qmax、没有任何残留的 `shanakeyframe`。
+- 抽查了 BigVoice（256k音频）、SameAudio（copy音频）、FastScene 变体、母版模板等代表性文件，确认 CRF 值、音频编码、文件名后缀、`<encparamBox>` 首尾空格均未被误改。
+- 确认 `nvenc_cq23.xml`/`qsv_cq23.xml`/两个 filter 模板完全未被触碰。
+
+### 待用户验证
+
+跟第一、二轮一样，实际压制效果需要用户自己验证：
+1. 挑 1~2 个非 Slow 文件夹（如 Medium、`1cpuQualityGpt5.3CodexFast`）实际压一版，跟旧版本做体积/画质对比。
+2. `ffprobe` 检查 `pix_fmt=yuv420p10le`、`profile=Main 10`。
+3. 暗部/皮肤渐变画面色带的肉眼对比。
+4. **`1cpuQuality`（veryfast 档位）的预期校正**：veryfast 本身算法较简化，配合 `aq-mode 3` 后暗部色带能明显改善，但整体压缩率天然低于 slow/medium 档位——测试时不要拿它跟 slow 档位的绝对体积做横向比较，只跟它自己"改前的 veryfast 版本"比。
