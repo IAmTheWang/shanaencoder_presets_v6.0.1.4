@@ -6,7 +6,7 @@
   <extensiontextBox>[se6qualityQsv28].mp4</extensiontextBox>
   <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
-  <encparamBox> -f mp4  -timestamp now
+  <encparamBox> -f mp4 -movflags faststart -timestamp now
  -c:v hevc_qsv -tag:v hvc1 -global_quality:v 28 -qmin 15 -qmax 35 -preset veryfast -profile:v main -level auto
  -c:a libfdk_aac -b:a 192k
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>

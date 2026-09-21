@@ -91,7 +91,7 @@ Codec / bit depth / quality / preset speed / audio / notes for every preset fold
 | `1cpuQualityGpt5.3Codex` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | fast | libfdk_aac 192k | faststart; unified quantization policy (see above). Previously had no qmin/qmax at all; now uses the shared `qmin 12`/no-qmax/aq-mode3 scheme. |
 | `1cpuQualityGpt5.3CodexFast` | libx265 | **true 10-bit** | CRF 20.0–32.0 (per-file) | fast | libfdk_aac 192k | faststart; subtitle support; unified quantization policy (see above). |
 | `1cpuQualityGpt5.3CodexFastSameAudio` | libx265 | **true 10-bit** | CRF 20–32 (per-file, `NNqualityCpuFastSameAudio.xml`) | fast | copy | faststart; unified quantization policy (see above). No BigVoice variant here (BigVoice=`-b:a 256k` re-encode is incompatible with `-c:a copy`); use `1cpuQualityGpt5.3CodexFast/21qualityCpuBigVoiceFast.xml` instead. CRF guide: 20-22 near-lossless/archival, 23-25 high quality storage, 26-28 default balance, 29-32 small/low-storage. |
-| `1cpuQualityGpt5.3CodexFastScene` | libx265 | **true 10-bit** | CRF 23.0–26.0 (5 hand-tuned A/B variants) | fast | libfdk_aac 192k (one variant uses copy) | faststart; scene-detection/detail-guard filenames kept, but as of 2026-09-21 all 5 variants' qmin/qmax were converged onto the unified quantization policy above (previously each variant intentionally used a different qmin/qmax spread — that differentiation was dropped in favor of repo-wide consistency; CRF and filenames still differ per variant). |
+| `1cpuQualityGpt5.3CodexFastScene` | libx265 | **true 10-bit** | CRF 23.0–26.0 (4 hand-tuned A/B variants) | fast | libfdk_aac 192k (one variant uses copy) | faststart; scene-detection/detail-guard filenames kept, but as of 2026-09-21 all variants' qmin/qmax were converged onto the unified quantization policy above (previously each variant intentionally used a different qmin/qmax spread — that differentiation was dropped in favor of repo-wide consistency; CRF and filenames still differ per variant). A 5th variant, `24qualityCpuFastScene_FreeCRF.xml`, was removed in a 2026-09-21 consistency audit: its qmin/qmax had been byte-identical to `BalancedGuard` since the file was created, so it was never actually a distinct "free CRF" variant — just a redundant duplicate. |
 | `2压 H264 8bit NVENC` | h264_nvenc | 8-bit | CQ 23 | hq | copy | faststart; unsharp+deblock filters; requires NVENC GPU (GTX 950+/RTX) |
 | `2压 H264 8bit x264` | libx264 | 8-bit | CRF 19.0 | veryfast | copy | faststart; SSIM-tuned; unsharp+deblock filters |
 | `2压 H265 10bit NVENC` | hevc_nvenc | **true 10-bit** (`-pix_fmt p010le`) | CQ 23–30 (5 tiers) + CQP fixed-QP + lossless (`-qp 0`) + VBR bitrate variants | hq | copy | faststart; profile main10; requires HEVC NVENC GPU (GTX 950+/RTX). As of 2026-09-21: `spatial-aq 1 -aq-strength 8` + `qmin 12`/no-qmax on the 5 CQ tiers and the VBR variant; CQP-fixed and lossless variants get true 10-bit only (qmin/qmax/AQ don't apply to those rate-control modes). See NVENC policy in `PRESET_POLICY.md` / `design_documents/2026-09-20-codexSlow-quality-tuning.md` round 4. |
@@ -120,18 +120,40 @@ Codec / bit depth / quality / preset speed / audio / notes for every preset fold
 
 ## File Format
 
-Each preset is stored as an XML file with the following structure:
+Each preset is stored as an XML file with the following structure (verified against `舟 6.0原预设` and current custom presets — both use this same 10-tag shape):
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
+<!--ShanaEncoder-->
 <Settings>
-  <extensiontextBox>Output file extension</extensiontextBox>
-  <filterparamBoxV>Video filters (FFmpeg format)</filterparamBoxV>
-  <filterparamBoxA>Audio filters (FFmpeg format)</filterparamBoxA>
+  <inputparamBox>Input-side FFmpeg args (rarely used, usually empty)</inputparamBox>
+  <prefixtextBox>Output filename prefix</prefixtextBox>
+  <extensiontextBox>Output filename suffix/extension</extensiontextBox>
+  <filterparamBoxV>Video filters (FFmpeg -vf, e.g. shanasubtitle, scale, deblock)</filterparamBoxV>
+  <filterparamBoxA>Audio filters (FFmpeg -af)</filterparamBoxA>
   <encparamBox>Encoding parameters (FFmpeg format)</encparamBox>
-  <Logo>Logo overlay configuration</Logo>
+  <x264optsBox>Legacy x264 -x264opts string (rarely used)</x264optsBox>
+  <substyle>ASS subtitle style string (Format:/Style: lines)</substyle>
+  <fontnameSE>Subtitle font override</fontnameSE>
+  <Logo>
+    <logochk>Enable logo overlay (True/False)</logochk>
+    <logopath>Path to logo image</logopath>
+    <logoalign>Logo alignment position</logoalign>
+    <logox>X offset</logox>
+    <logoy>Y offset</logoy>
+    <logow>Width</logow>
+    <logoh>Height</logoh>
+    <logos>Start time</logos>
+    <logosd>Start duration</logosd>
+    <logoe>End time</logoe>
+    <logoed>End duration</logoed>
+    <logoschk>Enable start fade (True/False)</logoschk>
+    <logoechk>Enable end fade (True/False)</logoechk>
+  </Logo>
 </Settings>
 ```
+
+**ShanaEncoder 7.3.0.0 note**: the app's own bundled factory-default presets (installer-generated `Apple`/`Cowon`/`(Convert)`/`(Stream Copy)`/etc. folders — gitignored, not part of this repo's version-controlled preset set) add one more optional tag, `<tonemapParam>`, holding an HDR→SDR tonemap filter chain used together with the `shanatonemap` FFmpeg filter (e.g. `zscale=transfer=linear:npl=100,...,tonemap=hable:desat=0,...`). None of this repo's custom presets use it since their source material is SDR; if HDR source footage ever needs handling, check the factory presets' `<tonemapParam>`/`shanatonemap` usage as a reference.
 
 ## Key Encoding Encoders
 

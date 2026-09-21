@@ -6,7 +6,7 @@
   <extensiontextBox>[se6transTo1080pQualityCpu27].mp4</extensiontextBox>
   <filterparamBoxV> -vf "scale=1920:1080:flags=bicubic,shanapad=Auto,setsar=1/1,shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
-  <encparamBox> -f mp4  -timestamp now
+  <encparamBox> -f mp4 -movflags faststart -timestamp now
  -c:v libx265 -tag:v hvc1 -crf 27.0 -qmin 15 -qmax 35 -preset veryfast -tune:v none
  -c:a libfdk_aac -b:a 192k
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
