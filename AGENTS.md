@@ -25,7 +25,7 @@
 - 改参数时至少记录：适用素材、目标分辨率、质量档位（如 CRF/CQP）、关键滤镜开关。
 - 需要“体积优先/速度优先/画质优先”时，拆成独立预设，不混用一个文件反复改。
 - 对 CPU 与硬件编码结果分开维护，避免横向对比时混淆。
-- 当前最终策略以 [PRESET_POLICY.md](D:\software\ShanaEncoder v6.0.1.4 免安装版\presets\PRESET_POLICY.md) 为准。
+- 当前最终策略以 [PRESET_POLICY.md](PRESET_POLICY.md) 为准。
 
 ## 建议工作流
 

@@ -1,2 +1,17 @@
 /.serena/
 /.claude/settings.local.json
+
+# ShanaEncoder 7.3.0.0 factory default presets (installer-generated, not version controlled)
+/(Convert)/
+/(Stream Copy)/
+/Apple/
+/Cowon/
+/Eduplayer/
+/HTC/
+/Invio/
+/Iriver/
+/LG/
+/Mando/
+/Samsung/
+/Sony/
+/YujinPNP/

@@ -1,4 +1,4 @@
-$presets = 'D:\software\ShanaEncoder v6.0.1.4 免安装版\presets'
+$presets = $PSScriptRoot
 
 # ---- 1.1: 0cpuQualityGpt5.3CodexFastSameAudio (CRF 20-32) ----
 $folder = "$presets\0cpuQualityGpt5.3CodexFastSameAudio"
