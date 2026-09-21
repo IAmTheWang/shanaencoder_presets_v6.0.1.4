@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "unsharp=5:5:0.06:5:5:0.0,shanasubtitle=0,deblock=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart 
- -c:v libx264 -preset medium -tune:v ssim -crf 30.0 -qmin 25 -qmax 35 -profile:v high -level auto
+ -c:v libx264 -preset medium -tune:v ssim -crf 30.0 -qmin 25 -qmax 35 -profile:v high -level auto -fps_mode cfr
  -c:a copy
  -sn -timestamp now -map_metadata -1 -map_chapters -1 -shanakeyframe 10</encparamBox>
   <x264optsBox />

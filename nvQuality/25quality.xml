@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v hevc_nvenc -tag:v hvc1 -pix_fmt p010le -preset hq -tune:v hq -cq 25 -qmin 12 -profile:v main10 -level auto -spatial-aq 1 -aq-strength 8
+ -c:v hevc_nvenc -tag:v hvc1 -pix_fmt p010le -preset hq -tune:v hq -cq 25 -qmin 12 -profile:v main10 -level auto -spatial-aq 1 -aq-strength 8 -fps_mode cfr
  -c:a libfdk_aac -b:a 192k
  -sn -map_metadata -1 -map_chapters -1 -assforcestyle</encparamBox>
   <x264optsBox />

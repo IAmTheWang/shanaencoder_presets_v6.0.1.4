@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "shanasubtitle=0,deblock=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart 
- -c:v libx265 -tag:v hvc1 -preset veryfast -tune:v psnr -qmin 18 -b:v 1000k -maxrate 2300k -bufsize 4600k
+ -c:v libx265 -tag:v hvc1 -preset veryfast -tune:v psnr -qmin 18 -b:v 1000k -maxrate 2300k -bufsize 4600k -fps_mode cfr
  -c:a copy
  -sn -timestamp now -shanakeyframe 10 -map_metadata -1 -map_chapters -1</encparamBox>
   <x264optsBox />

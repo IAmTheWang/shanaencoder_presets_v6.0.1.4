@@ -13,11 +13,13 @@
 
 | 文件名 | 适用素材 | 目标分辨率 | 质量档位 | 关键滤镜/参数 |
 |---|---|---|---|---|
-| `24qualityCpuMediumScene_FreeCRF.xml` | 常规场景 | 720p/1080p | CRF 24 | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36` |
-| `24qualityCpuMediumScene_BalancedGuard.xml` | 常规场景（主推） | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36` |
-| `26qualityCpuMediumScene_SizeFirstGuard.xml` | 高噪点/长时长场景 | 720p/1080p | CRF 26（体积优先） | `-vf "shanasubtitle=1"`，`-qmin 18 -qmax 40` |
-| `23qualityCpuMediumScene_DetailGuard.xml` | 高运动/暗部细节场景 | 1080p | CRF 23（细节优先） | `-vf "shanasubtitle=1"`，`-qmin 16 -qmax 34` |
-| `24qualityCpuMediumScene_BalancedGuardSameAudio.xml` | 音频已可用场景 | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36`，`-c:a copy` |
+| `24qualityCpuMediumScene_FreeCRF.xml` | 常规场景 | 720p/1080p | CRF 24 | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36`，`-fps_mode cfr` |
+| `24qualityCpuMediumScene_BalancedGuard.xml` | 常规场景（主推） | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36`，`-fps_mode cfr` |
+| `26qualityCpuMediumScene_SizeFirstGuard.xml` | 高噪点/长时长场景 | 720p/1080p | CRF 26（体积优先） | `-vf "shanasubtitle=1"`，`-qmin 18 -qmax 40`，`-fps_mode cfr` |
+| `23qualityCpuMediumScene_DetailGuard.xml` | 高运动/暗部细节场景 | 1080p | CRF 23（细节优先） | `-vf "shanasubtitle=1"`，`-qmin 16 -qmax 34`，`-fps_mode cfr` |
+| `24qualityCpuMediumScene_BalancedGuardSameAudio.xml` | 音频已可用场景 | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 17 -qmax 36`，`-c:a copy`，`-fps_mode cfr` |
+
+> 注：本表 `-qmin`/`-qmax` 列的数值是历史值，未跟上 2026-09-21 生效的统一量化策略（`qmin 12`、无 `qmax`）；这是本次合并安全改动之外的既有文档遗留问题，未在本次一并修正。
 
 ## 使用建议
 

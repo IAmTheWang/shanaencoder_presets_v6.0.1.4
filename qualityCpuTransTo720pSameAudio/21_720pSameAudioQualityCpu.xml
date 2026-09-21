@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "scale=1280:720:flags=bicubic,shanapad=Auto,setsar=1/1,shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v libx265 -tag:v hvc1 -crf 21.0 -qmin 15 -qmax 35 -preset veryfast -tune:v none
+ -c:v libx265 -tag:v hvc1 -crf 21.0 -qmin 15 -qmax 35 -preset veryfast -tune:v none -fps_mode cfr
  -c:a copy
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
   <x264optsBox />

@@ -55,6 +55,7 @@ For each XML, check:
 | Check | Rule | Severity |
 |-------|------|----------|
 | `movflags` | Must contain `-movflags faststart` in `<encparamBox>` | WARNING |
+| `fps_mode` | If `-c:v` in `<encparamBox>` is a real encoder (not `copy`, and not absent/`none` — i.e. skip pure stream-copy and audio-only presets), it must contain `-fps_mode cfr` (substring match anywhere in `<encparamBox>`, don't rely on fixed whitespace/line-break position) | WARNING |
 | Audio codec | Must be either `-c:a libfdk_aac -b:a 192k` or `-c:a copy` (not other values) | WARNING |
 | Extension tag | `<extensiontextBox>` must not be empty | ERROR |
 | SameAudio match | If a folder name contains `SameAudio`, audio must use `-c:a copy` | ERROR |
@@ -87,5 +88,6 @@ After BigVoice ERROR findings, ask separately: "要将 BigVoice 文件的音频�
 
 ## Common Auto-fixable Issues
 - Missing `-movflags faststart` → add after `-f mp4`
+- Missing `-fps_mode cfr` (on non-copy, non-audio-only presets) → append to the end of the `-c:v` flag group
 - Audio bitrate typo (e.g. `192`) → normalize to `192k`
 - BigVoice files with `-b:a 192k` → upgrade to `-b:a 256k`

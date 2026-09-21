@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "shanasubtitle=0"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart 
- -c:v h264_nvenc -preset hq -tune:v hq -profile:v high -level auto -qp 25
+ -c:v h264_nvenc -preset hq -tune:v hq -profile:v high -level auto -qp 25 -fps_mode cfr
  -c:a copy
  -sn -timestamp now -map_metadata -1 -map_chapters -1 -shanakeyframe 10</encparamBox>
   <x264optsBox />

@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v hevc_qsv -tag:v hvc1 -global_quality:v 24 -qmin 15 -qmax 35 -preset veryfast -profile:v main -level auto
+ -c:v hevc_qsv -tag:v hvc1 -global_quality:v 24 -qmin 15 -qmax 35 -preset veryfast -profile:v main -level auto -fps_mode cfr
  -c:a libfdk_aac -b:a 192k
  -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
   <x264optsBox />

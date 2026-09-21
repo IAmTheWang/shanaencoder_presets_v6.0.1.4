@@ -13,10 +13,10 @@
 
 | 文件名 | 适用素材 | 目标分辨率 | 质量档位 | 关键滤镜/参数 |
 |---|---|---|---|---|
-| `24qualityCpuFastScene_BalancedGuard.xml` | 常规场景（主推） | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8` |
-| `26qualityCpuFastScene_SizeFirstGuard.xml` | 高噪点/长时长场景 | 720p/1080p | CRF 26（体积优先） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8` |
-| `23qualityCpuFastScene_DetailGuard.xml` | 高运动/暗部细节场景 | 1080p | CRF 23（细节优先） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8` |
-| `24qualityCpuFastScene_BalancedGuardSameAudio.xml` | 音频已可用场景 | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8`，`-c:a copy` |
+| `24qualityCpuFastScene_BalancedGuard.xml` | 常规场景（主推） | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8`，`-fps_mode cfr` |
+| `26qualityCpuFastScene_SizeFirstGuard.xml` | 高噪点/长时长场景 | 720p/1080p | CRF 26（体积优先） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8`，`-fps_mode cfr` |
+| `23qualityCpuFastScene_DetailGuard.xml` | 高运动/暗部细节场景 | 1080p | CRF 23（细节优先） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8`，`-fps_mode cfr` |
+| `24qualityCpuFastScene_BalancedGuardSameAudio.xml` | 音频已可用场景 | 720p/1080p | CRF 24（均衡） | `-vf "shanasubtitle=1"`，`-qmin 12`，`-x265-params aq-mode=3:aq-strength=0.8`，`-c:a copy`，`-fps_mode cfr` |
 
 ## 使用建议
 

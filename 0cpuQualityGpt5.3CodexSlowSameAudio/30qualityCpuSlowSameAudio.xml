@@ -7,7 +7,7 @@
   <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
   <filterparamBoxA />
   <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -crf 30.0 -qmin 12 -preset slow -tune:v none -x265-params aq-mode=3:aq-strength=0.8
+ -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -crf 30.0 -qmin 12 -preset slow -tune:v none -x265-params aq-mode=3:aq-strength=0.8 -fps_mode cfr
  -c:a copy
  -sn -map_metadata -1 -map_chapters -1 -assforcestyle</encparamBox>
   <x264optsBox />
