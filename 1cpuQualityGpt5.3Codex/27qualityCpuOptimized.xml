@@ -7,9 +7,9 @@
  <filterparamBoxV> -vf "shanasubtitle=1"</filterparamBoxV>
  <filterparamBoxA />
  <encparamBox> -f mp4 -movflags faststart -timestamp now
- -c:v libx265 -tag:v hvc1 -crf 27.0 -preset fast -tune:v none
+ -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -crf 27.0 -qmin 12 -preset fast -tune:v none -x265-params aq-mode=3:aq-strength=0.8
  -c:a libfdk_aac -b:a 192k
- -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
+ -sn -map_metadata -1 -map_chapters -1 -assforcestyle</encparamBox>
  <x264optsBox />
  <substyle>Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Microsoft YaHei UI,18,&amp;H00FFFFFF,&amp;H0000FFFF,&amp;H00000000,&amp;H80000000,-1,0,0,0,100,100,0,0,1,0.5,0,1,10,10,10,1</substyle>
