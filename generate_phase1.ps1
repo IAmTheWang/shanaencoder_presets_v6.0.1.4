@@ -39,7 +39,7 @@ Style: Default,Microsoft YaHei UI,18,&H00FFFFFF,&H0000FFFF,&H00000000,&H80000000
  <encparamBox> -f mp4 -movflags faststart -timestamp now
  -c:v libx265 -tag:v hvc1 -crf $crf.0 -qmin 17 -qmax 36 -preset fast -tune:v none
  -c:a copy
- -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
+ -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10</encparamBox>
  <x264optsBox />
  <substyle>$substyle</substyle>
  <fontnameSE />
@@ -85,7 +85,7 @@ $logoBlock2 = @'
   <encparamBox> -f mp4  -timestamp now
  -c:v hevc_qsv -tag:v hvc1 -global_quality:v $cq -qmin 15 -qmax 35 -preset veryfast -profile:v main -level auto
  -c:a libfdk_aac -b:a 192k
- -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10 -assforcestyle</encparamBox>
+ -sn -map_metadata -1 -map_chapters -1 -shanakeyframe 10</encparamBox>
   <x264optsBox />
   <substyle>$substyle</substyle>
   <fontnameSE />

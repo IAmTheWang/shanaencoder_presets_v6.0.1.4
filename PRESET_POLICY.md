@@ -10,6 +10,7 @@
 - `2026-09-21`（第四轮：把量化策略的目标翻译成 NVENC 自己的参数，推广到 7 个 `hevc_nvenc` 文件夹 + 母版；`2压 H264 8bit NVENC` 排除在外）
 - `2026-09-21`（第六轮：合并安全策略——反转第 1 条，改为默认强制 `-fps_mode cfr`，详见下方"合并安全（CFR）策略"与 `design_documents/2026-09-21-merge-safety-fps-mode-cfr.md`）
 - `2026-09-27`（第七轮：撤销第六轮——移除全仓库 `-fps_mode cfr`，第 1 条恢复为不强制固定帧率，详见下方"合并安全（CFR）策略"末尾说明与 `design_documents/2026-09-27-revert-fps-mode-cfr.md`）
+- `2026-09-27`（第八轮：字幕烧录不再强制覆盖 ASS 自带样式——移除全仓库 249 个文件 `<encparamBox>` 里的 `-assforcestyle`，新增第 7 条全局规则，详见 `design_documents/2026-09-27-remove-assforcestyle.md`）
 
 ## 全局统一策略（适用于全仓 XML）
 
@@ -19,6 +20,7 @@
 4. MP4 统一前置索引：保留/添加 `-movflags faststart`。
 5. HEVC 兼容标记：对 HEVC 编码（如 `libx265` / `hevc_*`）添加 `-tag:v hvc1`。
 6. 音频复制不加滤镜：`-c:a copy` 的预设不新增音频处理链。
+7. **字幕烧录不强制覆盖 ASS 自带样式**（2026-09-27 起）：`<encparamBox>` 不加 `-assforcestyle`。`<substyle>` 标签本身留着（无害，反正不会被读取），但只要 `-assforcestyle` 不存在，ShanaEncoder 就不会用 `<substyle>` 里的 Format/Style 强制覆盖字幕文件自己的 `[V4+ Styles]`——烧录效果完全由 `.ass` 文件自己的样式决定。这是 2026-04-13～2026-09-27 期间部分文件夹（`0cpuQuality*`/`1cpuQuality*`/`nvQuality`/`qualityQsv`/`qualitySameAudio*`/`qualityTransTo*`/`qualityCpuTransTo*`）的原始行为反转：那些文件夹一直强制用通用的 `Microsoft YaHei UI 18pt` 覆盖，跟用户实际 `.ass` 文件里定义的字号（86–128pt 不等）完全对不上，导致烧出来的字幕肉眼可见偏小。详见 `design_documents/2026-09-27-remove-assforcestyle.md`。
 
 ## CPU 量化策略统一说明（2026-09-21 起）
 
