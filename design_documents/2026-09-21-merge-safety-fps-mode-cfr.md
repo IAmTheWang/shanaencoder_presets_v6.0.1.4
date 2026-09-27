@@ -43,7 +43,7 @@ find . -name '*.xml' \
   -not -path './.git/*' \
   -not -path './舟 5.X原预设/*' \
   -not -path './舟 6.0原预设/*' \
-  -print0 | xargs -0 sed -i -E '/-fps_mode/!s/^(\s*-c:v (libx265|libx264|hevc_nvenc|hevc_qsv|h264_nvenc)\b.*)$/\1 -fps_mode cfr/'
+  -print0 | xargs -0 sed -i -E '/-fps_mode/!s/^(\s*-c:v (libx265|libx264|hevc_nvenc|hevc_qsv|h264_nvenc)\b.*)$/\1/'
 ```
 
 `/-fps_mode/!` 是幂等性保护——即使命令中途失败重跑，已经带 `-fps_mode` 的行不会被二次追加（执行前已核实全仓库 537 个已跟踪 xml 里没有一个包含 `fps_mode`/`vsync`，这条保护纯粹是防御性的）。

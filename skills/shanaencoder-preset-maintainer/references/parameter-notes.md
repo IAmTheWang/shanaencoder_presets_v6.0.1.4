@@ -11,8 +11,8 @@
 - 中文: 强制固定帧率。适用于剪辑流程或老旧播放器兼容。
 - English: For variable-frame-rate sources, this may duplicate/drop frames and may increase size.
 - 中文: 对可变帧率源，可能补帧/丢帧，并可能增大体积。
-- English: As of 2026-09-21 this is enabled by default across most active re-encode presets in this repo (merge-safety policy — prevents audio/video drift from accumulating when concatenating multiple source files). See `PRESET_POLICY.md`. Treat it as opt-out, not opt-in.
-- 中文: 2026-09-21 起该参数已在仓库大部分现役压制预设中默认启用（合并安全策略——防止多段素材拼接时音画偏差累积），详见 `PRESET_POLICY.md`。现在是默认开启、非默认关闭。
+- English: Was enabled by default repo-wide from 2026-09-21 (round 6, merge-safety policy) through 2026-09-27, then reverted at the user's request — the size/frame-duplication cost was judged not worth it in practice. Removed from every preset again. See `PRESET_POLICY.md`.
+- 中文: 2026-09-21（第六轮，合并安全策略）到 2026-09-27 期间曾在全仓库默认启用，之后应用户要求撤销——实际使用中认为补帧/体积代价不值得。已从全部预设中再次移除，详见 `PRESET_POLICY.md`。
 
 ## `-preset veryfast` vs `-preset fast`
 
